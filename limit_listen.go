@@ -45,22 +45,22 @@ func (l *limitListener) Accept() (net.Conn, error) {
 		l.release()
 		return nil, err
 	}
-	return &limitListenerConn{Conn: c, release: l.release}, nil
+	return &LimitListenerConn{Conn: c, release: l.release}, nil
 }
 
-type limitListenerConn struct {
+type LimitListenerConn struct {
 	net.Conn
 	releaseOnce sync.Once
 	release     func()
 }
 
-func (l *limitListenerConn) Close() error {
+func (l *LimitListenerConn) Close() error {
 	err := l.Conn.Close()
 	l.releaseOnce.Do(l.release)
 	return err
 }
 
-func (l *limitListenerConn) SetKeepAlive(doKeepAlive bool) error {
+func (l *LimitListenerConn) SetKeepAlive(doKeepAlive bool) error {
 	tcpc, ok := l.Conn.(*net.TCPConn)
 	if !ok {
 		return ErrNotTCP
@@ -68,7 +68,7 @@ func (l *limitListenerConn) SetKeepAlive(doKeepAlive bool) error {
 	return tcpc.SetKeepAlive(doKeepAlive)
 }
 
-func (l *limitListenerConn) SetKeepAlivePeriod(d time.Duration) error {
+func (l *LimitListenerConn) SetKeepAlivePeriod(d time.Duration) error {
 	tcpc, ok := l.Conn.(*net.TCPConn)
 	if !ok {
 		return ErrNotTCP
